@@ -165,8 +165,11 @@ def numerical_vanna_black_scholes(flags, Ss, Ks, ts, rs, sigmas, bs):
         if t == 0:
             vanna = 0.0
         else:
-            vanna = (black_scholes(flag, S, K, t, r, sigma+dS) - 2. * black_scholes(flag, S, K, t, r, sigma) + \
-                     black_scholes(flag, S, K, t, r, sigma-dS)) / dS ** 2.
+            delta_up = (black_scholes(flag, S+dS, K, t, r, sigma+.01) - black_scholes(flag, S - dS, K, t, r, sigma+.01)) / (
+                2 * dS)
+            delta_down = (black_scholes(flag, S+dS, K, t, r, sigma-.01) - black_scholes(flag, S - dS, K, t, r, sigma-.01)) / (
+                2 * dS)
+            vanna = (delta_up-delta_down)/2.
         vannas.append(vanna)
     return vannas
 

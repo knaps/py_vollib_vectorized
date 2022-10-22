@@ -309,15 +309,34 @@ def gamma(flag, S, K, t, r, sigma, q=None, *,  model="black_scholes", return_as=
 
 @returntype('vanna')
 def vanna(flag, S, K, t, r, sigma, q=None, *,  model="black_scholes", return_as="dataframe", dtype=np.float64):
+    """
+    Return the vanna of a contract, as specified by the pricing model `model`.
+    Broadcasting is applied on the inputs.
+
+    :param flag: For each contract, this should be specified as `c` for a call option and `p` for a put option.
+    :param S: The price of the underlying asset.
+    :param K: The strike price.
+    :param t: The annualized time to expiration. Must be positive. For small TTEs, use a small value (1e-3).
+    :param r: The Interest Free Rate.
+    :param sigma: The Implied Volatility.
+    :param q: The annualized continuous dividend yield.
+    :param model: Must be one of 'black', 'black_scholes' or 'black_scholes_merton'.
+    :param return_as: To return as a :obj:`pd.Series` object, use "series". To return as a :obj:`pd.DataFrame` object, use "dataframe". Any other value will return a :obj:`numpy.array` object.
+    :param dtype: Data type.
+    :return: :obj:`pd.Series`, :obj:`pd.DataFrame` or :obj:`numpy.array` object containing the gamma for each contract.
+    """
     flag = _preprocess_flags(flag, dtype=dtype)
     S, K, t, r, sigma, flag = maybe_format_data_and_broadcast(S, K, t, r, sigma, flag, dtype=dtype)
     _validate_data(flag, S, K, t, r, sigma)
 
-    if model in ('black','black_scholes_merton'):
+    if model == "black":
         raise NotImplementedError('only "black_scholes" model currently implemented for vanna')
-    if model not in ('black_scholes',):
-        raise ValueError("Model must be one of: `black`, `black_scholes`, `black_scholes_merton`")
-    if model=='black_scholes':
-        b = 0
+    elif model == "black_scholes":
+        b = r
         vanna = numerical_vanna_black_scholes(flag, S, K, t, r, sigma, b)
+    elif model == "black_scholes_merton":
+        raise NotImplementedError('only "black_scholes" model currently implemented for vanna')
+    else:
+        raise ValueError("Model must be one of: `black`, `black_scholes`, `black_scholes_merton`")
+
     return vanna
