@@ -1,3 +1,4 @@
+from functools import wraps
 import numpy as np
 import pandas as pd
 
@@ -9,6 +10,26 @@ from ._numerical_greeks import numerical_delta_black_scholes_merton, numerical_t
     numerical_vega_black_scholes_merton, numerical_rho_black_scholes_merton, numerical_gamma_black_scholes_merton
 from .util.data_format import _preprocess_flags, maybe_format_data_and_broadcast, _validate_data
 
+def returntype(colname=None):
+    '''
+    Return the result as a np array, series, or dataframe,
+    setting the column name if applicable.
+    '''
+    def decorator_returntype(f):
+        @wraps(f)
+        def wrapper(*args,**kwargs):
+            result = f(*args,**kwargs)
+            result = np.ascontiguousarray(result)
+            if 'return_as' in kwargs.keys():
+                if kwargs['return_as']=='series':
+                    result = pd.Series(result, name=colname)
+                elif kwargs['return_as']=='dataframe':
+                    result = pd.DataFrame(result, columns=[colname])
+            return result
+        return wrapper
+    return decorator_returntype
+
+@returntype('delta')
 def delta(flag, S, K, t, r, sigma, q=None, *, model="black_scholes", return_as="dataframe", dtype=np.float64):
     """
     Return the delta of a contract, as specified by the pricing model `model`.
@@ -62,15 +83,9 @@ def delta(flag, S, K, t, r, sigma, q=None, *, model="black_scholes", return_as="
     else:
         raise ValueError("Model must be one of: `black`, `black_scholes`, `black_scholes_merton`")
 
-    delta = np.ascontiguousarray(delta)
-
-    if return_as == "series":
-        return pd.Series(delta, name="delta")
-    elif return_as == "dataframe":
-        return pd.DataFrame(delta, columns=["delta"])
     return delta
 
-
+@returntype('theta')
 def theta(flag, S, K, t, r, sigma, q=None, *,  model="black_scholes", return_as="dataframe", dtype=np.float64):
     """
     Return the theta of a contract, as specified by the pricing model `model`.
@@ -123,15 +138,9 @@ def theta(flag, S, K, t, r, sigma, q=None, *,  model="black_scholes", return_as=
     else:
         raise ValueError("Model must be one of: `black`, `black_scholes`, `black_scholes_merton`")
 
-    theta = np.ascontiguousarray(theta)
-
-    if return_as == "series":
-        return pd.Series(theta, name="theta")
-    elif return_as == "dataframe":
-        return pd.DataFrame(theta, columns=["theta"])
     return theta
 
-
+@returntype('vega')
 def vega(flag, S, K, t, r, sigma, q=None, *, model="black_scholes", return_as="dataframe", dtype=np.float64):
     """
     Return the vega of a contract, as specified by the pricing model `model`.
@@ -184,15 +193,9 @@ def vega(flag, S, K, t, r, sigma, q=None, *, model="black_scholes", return_as="d
     else:
         raise ValueError("Model must be one of: `black`, `black_scholes`, `black_scholes_merton`")
 
-    vega = np.ascontiguousarray(vega)
-
-    if return_as == "series":
-        return pd.Series(vega, name="vega")
-    elif return_as == "dataframe":
-        return pd.DataFrame(vega, columns=["vega"])
     return vega
 
-
+@returntype('rho')
 def rho(flag, S, K, t, r, sigma, q=None, *, model="black_scholes", return_as="dataframe", dtype=np.float64):
     """
     Return the rho of a contract, as specified by the pricing model `model`.
@@ -246,15 +249,9 @@ def rho(flag, S, K, t, r, sigma, q=None, *, model="black_scholes", return_as="da
     else:
         raise ValueError("Model must be one of: `black`, `black_scholes`, `black_scholes_merton`")
 
-    rho = np.ascontiguousarray(rho)
-
-    if return_as == "series":
-        return pd.Series(rho, name="rho")
-    elif return_as == "dataframe":
-        return pd.DataFrame(rho, columns=["rho"])
     return rho
 
-
+@returntype('gamma')
 def gamma(flag, S, K, t, r, sigma, q=None, *,  model="black_scholes", return_as="dataframe", dtype=np.float64):
     """
     Return the gamma of a contract, as specified by the pricing model `model`.
@@ -307,10 +304,4 @@ def gamma(flag, S, K, t, r, sigma, q=None, *,  model="black_scholes", return_as=
     else:
         raise ValueError("Model must be one of: `black`, `black_scholes`, `black_scholes_merton`")
 
-    gamma = np.ascontiguousarray(gamma)
-
-    if return_as == "series":
-        return pd.Series(gamma, name="gamma")
-    elif return_as == "dataframe":
-        return pd.DataFrame(gamma, columns=["gamma"])
     return gamma
