@@ -7,7 +7,8 @@ from .api import get_all_greeks, price_dataframe
 
 from .implied_volatility import vectorized_implied_volatility_black, vectorized_implied_volatility
 from .greeks import delta as vectorized_delta, \
-    gamma as vectorized_gamma, rho as vectorized_rho, vega as vectorized_vega, theta as vectorized_theta
+    gamma as vectorized_gamma, rho as vectorized_rho, vega as vectorized_vega, theta as vectorized_theta, \
+    vanna as vectorized_vanna
 from .models import vectorized_black, vectorized_black_scholes, vectorized_black_scholes_merton
 
 __version__ = '0.1'
@@ -22,6 +23,7 @@ __all__ = [
     'vectorized_rho',
     'vectorized_vega',
     'vectorized_theta',
+    'vectorized_vanna',
     'vectorized_black',
     'vectorized_black_scholes',
     'vectorized_black_scholes_merton',
