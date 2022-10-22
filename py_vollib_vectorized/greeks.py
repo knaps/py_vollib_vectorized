@@ -5,7 +5,8 @@ import pandas as pd
 from ._numerical_greeks import numerical_delta_black, numerical_theta_black, \
     numerical_vega_black, numerical_rho_black, numerical_gamma_black
 from ._numerical_greeks import numerical_delta_black_scholes, numerical_theta_black_scholes, \
-    numerical_vega_black_scholes, numerical_rho_black_scholes, numerical_gamma_black_scholes
+    numerical_vega_black_scholes, numerical_rho_black_scholes, numerical_gamma_black_scholes, \
+    numerical_vanna_black_scholes
 from ._numerical_greeks import numerical_delta_black_scholes_merton, numerical_theta_black_scholes_merton, \
     numerical_vega_black_scholes_merton, numerical_rho_black_scholes_merton, numerical_gamma_black_scholes_merton
 from .util.data_format import _preprocess_flags, maybe_format_data_and_broadcast, _validate_data
@@ -305,3 +306,18 @@ def gamma(flag, S, K, t, r, sigma, q=None, *,  model="black_scholes", return_as=
         raise ValueError("Model must be one of: `black`, `black_scholes`, `black_scholes_merton`")
 
     return gamma
+
+@returntype('vanna')
+def vanna(flag, S, K, t, r, sigma, q=None, *,  model="black_scholes", return_as="dataframe", dtype=np.float64):
+    flag = _preprocess_flags(flag, dtype=dtype)
+    S, K, t, r, sigma, flag = maybe_format_data_and_broadcast(S, K, t, r, sigma, flag, dtype=dtype)
+    _validate_data(flag, S, K, t, r, sigma)
+
+    if model in ('black','black_scholes_merton'):
+        raise NotImplementedError, 'only "black_scholes" model currently implemented for vanna'
+    if model not in ('black_scholes',):
+        raise ValueError("Model must be one of: `black`, `black_scholes`, `black_scholes_merton`")
+    if model=='black_scholes':
+        b = 0
+        vanna = numerical_vanna_black_scholes(flag, S, K, t, r, sigma, b)
+    return vanna

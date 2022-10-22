@@ -158,6 +158,17 @@ def numerical_gamma_black_scholes(flags, Ss, Ks, ts, rs, sigmas, bs):
         gammas.append(gamma)
     return gammas
 
+@maybe_jit()
+def numerical_vanna_black_scholes(flags, Ss, Ks, ts, rs, sigmas, bs):
+    vannas = []
+    for flag, S, K, t, r, sigma, b in zip(flags, Ss, Ks, ts, rs, sigmas, bs):
+        if t == 0:
+            vanna = 0.0
+        else:
+            vanna = (black_scholes(flag, S, K, t, r, sigma+dS) - 2. * black_scholes(flag, S, K, t, r, sigma) + \
+                     black_scholes(flag, S, K, t, r, sigma-dS)) / dS ** 2.
+        vannas.append(vanna)
+    return vannas
 
 ### BLACK SCHOLES MERTON
 
