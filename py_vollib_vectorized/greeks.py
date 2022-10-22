@@ -314,7 +314,7 @@ def vanna(flag, S, K, t, r, sigma, q=None, *,  model="black_scholes", return_as=
     _validate_data(flag, S, K, t, r, sigma)
 
     if model in ('black','black_scholes_merton'):
-        raise NotImplementedError, 'only "black_scholes" model currently implemented for vanna'
+        raise NotImplementedError('only "black_scholes" model currently implemented for vanna')
     if model not in ('black_scholes',):
         raise ValueError("Model must be one of: `black`, `black_scholes`, `black_scholes_merton`")
     if model=='black_scholes':
